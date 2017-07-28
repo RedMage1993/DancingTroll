@@ -331,6 +331,7 @@ LRESULT CALLBACK LowLevelMouseProc(int nCode, WPARAM wParam, LPARAM lParam)
 
 		switch (wParam)
 		{
+		case WM_RBUTTONDOWN:
 		case WM_LBUTTONDOWN:
 			SetWindowPos(g_hWnd, HWND_TOPMOST, ms->pt.x - (g_bm.bmWidth >> 1), ms->pt.y - (g_bm.bmHeight >> 1), 0, 0, SWP_NOSIZE);
 			break;
