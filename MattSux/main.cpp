@@ -111,8 +111,8 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	else
 	{
 		pRunOnce = new RunOnce(g_hWnd);
-		if (!pRunOnce->PerformCheck(TEXT("MattSux.tmp")))
-			goto exit;
+		//if (!pRunOnce->PerformCheck(TEXT("MattSux.tmp")))
+		//	goto exit;
 
 		hdcParent = GetDC(g_hWnd);
 		g_hdcBm = CreateCompatibleDC(hdcParent);
