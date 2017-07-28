@@ -14,7 +14,7 @@
 #include <tchar.h>
 #include <Windows.h>
 #include <TlHelp32.h>
-//#include "RunOnce.h"
+#include "RunOnce.h"
 #include "resource.h"
 
 //#define keys_down(...) KeyDown(__VA_ARGS__, NULL)
@@ -49,7 +49,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	MSG msg;
 	WNDCLASSEX wcx;
 	HDC hdcParent = 0;
-	//RunOnce* pRunOnce = 0;
+	RunOnce* pRunOnce = 0;
 	//HANDLE hHkThread = 0;
 	bool timeSlice = false;
 	HHOOK hHookMs = 0;
@@ -110,9 +110,9 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 		return 1;
 	else
 	{
-		//pRunOnce = new RunOnce(g_hWnd);
-		//if (!pRunOnce->PerformCheck(TEXT("MattSux.tmp")))
-		//	goto exit;
+		pRunOnce = new RunOnce(g_hWnd);
+		if (!pRunOnce->PerformCheck(TEXT("MattSux.tmp")))
+			goto exit;
 
 		hdcParent = GetDC(g_hWnd);
 		g_hdcBm = CreateCompatibleDC(hdcParent);
@@ -212,8 +212,8 @@ exit:
 		DeleteDC(g_hdcBm);
 	}
 
-	//if (pRunOnce)
-	//	delete pRunOnce;
+	if (pRunOnce)
+		delete pRunOnce;
 
 	return static_cast<int> (msg.wParam);
 }
