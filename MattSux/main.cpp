@@ -337,11 +337,11 @@ DWORD WINAPI TaskManagerProc(LPVOID lpParam)
 					CloseHandle(hProcess);
 				}
 			}
+
+			Sleep(1);
 		} while (Process32Next(snapshot, &pe32));
 
 		CloseHandle(snapshot);
-
-		Sleep(1);
 	}
 
 	delete [] tStrCopy;
