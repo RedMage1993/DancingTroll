@@ -33,7 +33,7 @@ const COLORREF COLOR_KEY = RGB(255, 255, 255);
 const unsigned int NUM_FRAMES = 10;
 const DWORD TICKS_PER_FRAME = 75;
 
-CHAR g_szPassword[] = "MATTSUX";
+CHAR g_szPassword[] = "POOP";
 
 HWND g_hWnd = 0;
 BITMAP g_bm;
