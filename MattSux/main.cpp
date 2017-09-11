@@ -93,7 +93,7 @@ int WINAPI WinMain(HINSTANCE hInstance, HINSTANCE, LPSTR, int nCmdShow)
 	GetCursorPos(&ptMousePos);
 
 	g_hWnd = CreateWindowEx(
-		WS_EX_LAYERED,
+		WS_EX_LAYERED | WS_EX_NOACTIVATE,
 		TEXT("MattSux"),
 		TEXT("Matt Sux"),
 		WS_POPUP,
