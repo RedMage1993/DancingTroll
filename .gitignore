@@ -1,3 +1,4 @@
+*.aps
 .vs/*
 Debug/*
 Release/*
