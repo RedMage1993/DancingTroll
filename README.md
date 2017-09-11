@@ -3,3 +3,5 @@ I use C++ and Win32 APIs to create a little prank. It starts up a dancing troll 
 <img src="https://d26dzxoao6i3hh.cloudfront.net/items/0V0i3u0t1K1p310F3O0N/mattsux.gif">
 
 p.s. Just kidding, Matt! <3
+
+[update] Changed frames and project settings so that it's no longer about Matt and can be used for other reasons, haha.
